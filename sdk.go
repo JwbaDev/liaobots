@@ -52,7 +52,7 @@ Loop:
 		}
 		return "", fmt.Errorf("get response error too many times: %d", maxRetry)
 	}
-	return response.ReadAllString(), nil
+	return data, nil
 }
 
 func (c *Client) UserInfo() (*UserResponse, error) {
