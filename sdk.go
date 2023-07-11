@@ -11,10 +11,10 @@ import (
 
 const (
 	defaultAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67"
-	userInfoUrl  = "https://liaobots.com/api/user"
-	modelsUrl    = "https://liaobots.com/api/models"
-	chatUrl      = "https://liaobots.com/api/chat"
-	recommendUrl = "https://liaobots.com/api/recommend"
+	userInfoUrl  = "https://liaobots.work/api/user"
+	modelsUrl    = "https://liaobots.work/api/models"
+	chatUrl      = "https://liaobots.work/api/chat"
+	recommendUrl = "https://liaobots.work/api/recommend"
 )
 
 type Client struct {
@@ -33,10 +33,10 @@ func (c *Client) GetResponse(url string, req interface{}) (string, error) {
 	)
 	cli := c.cli().ContentJson().SetAgent(defaultAgent)
 	cli = cli.SetHeaderMap(g.MapStrStr{
-		"Origin":      "https://liaobots.com",
-		"Referer":     "https://liaobots.com",
+		"Origin":      "https://liaobots.work",
+		"Referer":     "https://liaobots.work",
 		"X-Auth-Code": c.Token,
-		"Authority":   "liaobots.com",
+		"Authority":   "liaobots.work",
 	})
 Loop:
 	response, err := cli.Post(context.Background(), url, req)
