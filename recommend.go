@@ -1,4 +1,4 @@
-package request
+package liaobots
 
 type RecommendReq struct {
 	Messages []Message `json:"messages"`

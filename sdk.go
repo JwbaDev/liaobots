@@ -1,8 +1,7 @@
-package sdk
+package liaobots
 
 import (
 	"context"
-	"github.com/lilacsheep/liaobots/client/request"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
@@ -19,7 +18,7 @@ const (
 
 type Client struct {
 	Token  string
-	models []request.Model
+	models []Model
 }
 
 func (c *Client) cli() *gclient.Client {
@@ -42,24 +41,24 @@ func (c *Client) GetResponse(url string, req interface{}) (string, error) {
 	return response.ReadAllString(), nil
 }
 
-func (c *Client) UserInfo() (*request.UserResponse, error) {
-	resp, err := c.GetResponse(userInfoUrl, &request.UserReq{Authcode: c.Token})
+func (c *Client) UserInfo() (*UserResponse, error) {
+	resp, err := c.GetResponse(userInfoUrl, &UserReq{Authcode: c.Token})
 	if err != nil {
 		return nil, err
 	}
-	var info = &request.UserResponse{}
+	var info = &UserResponse{}
 	err = gjson.New(resp).Scan(info)
 	return info, err
 }
 
-func (c *Client) Models() (*request.ModelsResponse, error) {
-	resp, err := c.GetResponse(modelsUrl, &request.ModelReq{})
+func (c *Client) Models() (*ModelsResponse, error) {
+	resp, err := c.GetResponse(modelsUrl, &ModelReq{})
 	if err != nil {
 		return nil, err
 	}
 	var (
-		info   = &request.ModelsResponse{}
-		models []request.Model
+		info   = &ModelsResponse{}
+		models []Model
 	)
 	err = gjson.New(resp).Scan(&models)
 	if err != nil {
@@ -69,7 +68,7 @@ func (c *Client) Models() (*request.ModelsResponse, error) {
 	return info, err
 }
 
-func (c *Client) Chat(req *request.ChatReq) (string, error) {
+func (c *Client) Chat(req *ChatReq) (string, error) {
 	// var (
 	// 	req = &request.ChatReq{
 	// 		ConversationID: uuid.NewV4().String(),
@@ -77,6 +76,9 @@ func (c *Client) Chat(req *request.ChatReq) (string, error) {
 	// 		Messages:       messages,
 	// 	}
 	// )
+	if req.Model.ID == "" {
+		return "", nil
+	}
 	resp, err := c.GetResponse(chatUrl, req)
 	if err != nil {
 		return "", err
@@ -84,13 +86,22 @@ func (c *Client) Chat(req *request.ChatReq) (string, error) {
 	return resp, nil
 }
 
-func (c *Client) Recommend(messages []request.Message) error {
-	req := &request.RecommendReq{
+func (c *Client) Recommend(messages []Message) error {
+	req := &RecommendReq{
 		Messages: messages,
 		AuthCode: c.Token,
 	}
 	_, err := c.GetResponse(recommendUrl, req)
 	return err
+}
+
+func (c *Client) GetModel(id string) (*Model, error) {
+	for _, model := range c.models {
+		if model.ID == id {
+			return &model, nil
+		}
+	}
+	return nil, nil
 }
 
 func NewClient(token string) (*Client, error) {
