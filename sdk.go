@@ -2,6 +2,7 @@ package liaobots
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
@@ -17,8 +18,9 @@ const (
 )
 
 type Client struct {
-	Token  string
-	models []Model
+	Token    string
+	models   []Model
+	MaxRetry int // 失败最大重试次数
 }
 
 func (c *Client) cli() *gclient.Client {
@@ -26,6 +28,9 @@ func (c *Client) cli() *gclient.Client {
 }
 
 func (c *Client) GetResponse(url string, req interface{}) (string, error) {
+	var (
+		maxRetry int
+	)
 	cli := c.cli().ContentJson().SetAgent(defaultAgent)
 	cli = cli.SetHeaderMap(g.MapStrStr{
 		"Origin":      "https://liaobots.com",
@@ -33,11 +38,20 @@ func (c *Client) GetResponse(url string, req interface{}) (string, error) {
 		"X-Auth-Code": c.Token,
 		"Authority":   "liaobots.com",
 	})
+Loop:
 	response, err := cli.Post(context.Background(), url, req)
 	if err != nil {
 		return "", err
 	}
 	defer response.Close()
+	data := response.ReadAllString()
+	if data == "Error" {
+		if maxRetry < c.MaxRetry {
+			maxRetry++
+			goto Loop
+		}
+		return "", fmt.Errorf("get response error too many times: %d", maxRetry)
+	}
 	return response.ReadAllString(), nil
 }
 
@@ -111,5 +125,6 @@ func NewClient(token string) (*Client, error) {
 		return nil, err
 	}
 	cli.models = resp.Data
+	cli.MaxRetry = 3
 	return cli, nil
 }
