@@ -20,6 +20,7 @@ const (
 type Client struct {
 	Token    string
 	models   []Model
+	Cookie   string
 	MaxRetry int // 失败最大重试次数
 }
 
@@ -37,6 +38,14 @@ func (c *Client) GetResponse(url string, req interface{}) (string, error) {
 		"Referer":     "https://liaobots.work",
 		"X-Auth-Code": c.Token,
 		"Authority":   "liaobots.work",
+		"Host": "liaobots.work",
+		"Sec-Ch-Ua-Platform": "Windows",
+		"Sec-Ch-Ua-Mobile": "?0",
+		"Sec-Fetch-Dest": "empty",
+		"Sec-Fetch-Mode": "cors",
+		"Sec-Fetch-Site": "same-origin",
+		"Sec-Ch-Ua": `Not.A/Brand";v="8", "Chromium";v="114", "Microsoft Edge";v="114`,
+		"Cookie": c.Cookie,
 	})
 Loop:
 	response, err := cli.Post(context.Background(), url, req)
@@ -118,8 +127,8 @@ func (c *Client) GetModel(id string) (*Model, error) {
 	return nil, nil
 }
 
-func NewClient(token string) (*Client, error) {
-	cli := &Client{Token: token}
+func NewClient(token string, cookie string) (*Client, error) {
+	cli := &Client{Token: token, Cookie: cookie}
 	resp, err := cli.Models()
 	if err != nil {
 		return nil, err
