@@ -1,4 +1,4 @@
-module github.com/lilacsheep/liaibots
+module github.com/lilacsheep/liaobots
 
 go 1.20
 

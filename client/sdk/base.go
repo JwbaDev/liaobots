@@ -2,7 +2,7 @@ package sdk
 
 import (
 	"context"
-	"github.com/lilacsheep/liaibots/client/request"
+	"github.com/lilacsheep/liaobots/client/request"
 
 	"github.com/gogf/gf/v2/encoding/gjson"
 	"github.com/gogf/gf/v2/frame/g"
